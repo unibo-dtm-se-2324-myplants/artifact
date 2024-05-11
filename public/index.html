@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Invio Dato Pianta</title>
+</head>
+<body>
+    <div class="header">
+        <h1>PlantAI</h1>
+    </div>
+
+    <div class="main">
+
+        <form id="plantForm">
+
+            <div class="drag-area">
+                <span class="drag-text">Trascina qui un'immagine<br>o<br>clicca per selezionarla</span>
+                <input type="file" id="imageFile" name="imageFile" accept="image/*" style="display:none;">
+                <img src="" alt="" id="thumb" class="thumb">
+            </div>
+            
+            <h2>La pianta è posizionata:</h2>
+            <div class="radio-group">
+                <div>
+                    <input type="radio" id="indoor" name="location" value="da interno" checked>
+                    <label for="indoor">All'interno</label>
+                </div>
+                <div>
+                    <input type="radio" id="outdoor" name="location" value="da esterno">
+                    <label for="outdoor">All'esterno</label>
+                </div>
+            </div>
+
+            <div id="loader" class="loader hidden"></div>
+
+            <button type="submit" id="invia">Invia</button>
+        </form>
+
+        <div id="savedResponses">
+            <h2>Ultime Risposte</h2>
+            <ul id="responseList"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -58,43 +58,63 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
 
+
             .then(data => {
-    document.getElementById('loader').classList.add('hidden');
-    document.getElementById('invia').style.display = "block";
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('invia').style.display = "block";
 
-    if (data.message && typeof data.message.content === 'string') {
-        const formattedContent = data.message.content.replace(/<br>/g, '');
-        const parts = formattedContent.split(' - ');
+                // Controlla se il contenuto della risposta è 'error404'
+                if (data.message.content === "error404") {
 
-        const plantName = parts[0] ? parts[0] : '';
-        const watering = parts[1] ? parts[1] : '';
-        const description = parts[2] ? parts[2] : '';
+                    // Mostra un messaggio di errore se l'immagine non è riconosciuta come una pianta
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'error-message';
+                    errorMessage.textContent = "Nessuna pianta individuata, riprova";
+                    const responseList = document.getElementById('responseList');
+                    responseList.insertBefore(errorMessage, responseList.firstChild);
 
-        const responseBox = document.createElement('div');
-        responseBox.className = 'response-box';
 
-        const imageEl = document.createElement('img');
-        imageEl.src = URL.createObjectURL(imageInput.files[0]);
-        imageEl.className = 'response-image';
-        imageEl.alt = 'Uploaded plant image';
+                } else if (data.message && typeof data.message.content === 'string') {
+                    const formattedContent = data.message.content.replace(/<br>/g, '');
+                    const parts = formattedContent.split(' - ');
 
-        responseBox.appendChild(imageEl);
-        responseBox.innerHTML += `
+                    const plantName = parts[0] ? parts[0] : '';
+                    const watering = parts[1] ? parts[1] : '';
+                    const description = parts[2] ? parts[2] : '';
+
+                    const responseBox = document.createElement('div');
+                    responseBox.className = 'response-box';
+
+                    const imageEl = document.createElement('img');
+                    imageEl.src = URL.createObjectURL(imageInput.files[0]);
+                    imageEl.className = 'response-image';
+                    imageEl.alt = 'Uploaded plant image';
+
+                    responseBox.appendChild(imageEl);
+                    responseBox.innerHTML += `
             <div class="response-section">${plantName}</div>
             <div class="response-section">${watering}</div>
             <div class="response-section">${description}</div>
         `;
 
-        const responseList = document.getElementById('responseList');
-        responseList.insertBefore(responseBox, responseList.firstChild);
-    } else {
-        console.error('Invalid response format');
-    }
-})
-.catch(error => {
-    document.getElementById('loader').classList.add('hidden');
-    console.error('Error:', error);
-});
+                    const responseList = document.getElementById('responseList');
+                    responseList.insertBefore(responseBox, responseList.firstChild);
+                } else {
+                    console.error('Invalid response format');
+                }
+
+                // Reset the form
+                form.reset();
+
+                document.getElementById('thumb').src = '';
+                // Reset la drag area
+                const dragText = dragArea.querySelector(".drag-text");
+                dragText.innerHTML = "Trascina qui un'immagine<br>o<br>clicca per selezionarla";
+            })
+            .catch(error => {
+                document.getElementById('loader').classList.add('hidden');
+                console.error('Error:', error);
+            });
 
     });
 });

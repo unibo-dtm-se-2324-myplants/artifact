@@ -40,13 +40,13 @@ app.post('/submit', upload.single('image'), async (req, res) => {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "dammi il nome scientifico della pianta che vedi, rispetta quest'ordine di formattazione nella risposta ( <b>Nome pianta:</b> x <br> - <br> <b>Annaffiala ogni:</b> x giorni <br> - <br>  <b>Descrizione:</b> x). Rispetta la formattazione che ti ho chiesto sostituendo le 'x' e restituiscimi il numero di giorni con un solo valore intero sapendo che la pianta è posizionata " + location },
+                        { type: "text", text: "dammi il nome scientifico della pianta che vedi, rispetta quest'ordine di formattazione nella risposta ( <b>Nome pianta:</b> x <br> - <br> <b>Annaffiala ogni:</b> x giorni <br> - <br>  <b>Descrizione:</b> x). Se l'immagine non è una pianta rispondi solo con: error404. Rispetta la formattazione che ti ho chiesto sostituendo le 'x' e restituiscimi il numero di giorni con un solo valore intero sapendo che la pianta è posizionata " + location },
                         { type: "image_url", image_url: { url: dataUri } }
                     ]
                 }
             ]
         });
-        console.log(response);
+
         console.log('Response from OpenAI:', response);
         console.log('Message from OpenAI:', response.choices[0].message);
 

@@ -16,12 +16,14 @@
 Road map:
 
 - Solve visualization problems with OpenAI answer
-- Handle non-plant image uploads
+- ~Handle non-plant image uploads~ (to be improved)
 - Implement Progressive Web App (PWA) features
 - Storage
 - Implement notification functionality
 - Enable picture uploads from phone cameras
 - Better responsive UI
+
+- caching for same requests
 
 Problems encouterd:
 

@@ -35,7 +35,7 @@ app.post('/submit', upload.single('image'), async (req, res) => {
     try {
         const { location } = req.body;
         const response = await openai.chat.completions.create({
-            model: 'gpt-4-turbo',
+            model: 'gpt-4o',
             messages: [
                 {
                     role: "user",
@@ -46,7 +46,7 @@ app.post('/submit', upload.single('image'), async (req, res) => {
                 }
             ]
         });
-
+        console.log(response);
         console.log('Response from OpenAI:', response);
         console.log('Message from OpenAI:', response.choices[0].message);
 

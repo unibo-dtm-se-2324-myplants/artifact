@@ -13,7 +13,7 @@
 2. Install all the dipendence: npm install express openai dotenv multer and node.js (npm init -y)
 3. Import demo on Artifact repo
 
-Road map:
+## Road map:
 
 - Solve visualization problems with OpenAI answer
 - ~Handle non-plant image uploads~ (to be improved)
@@ -22,7 +22,7 @@ Road map:
 - Implement notification functionality
 - Enable picture uploads from phone cameras
 - Better responsive UI
-
+- 
 - caching for same requests
 
 Problems encouterd:

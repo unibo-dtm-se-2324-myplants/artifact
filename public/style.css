@@ -142,7 +142,7 @@ button:hover {
 }
 
 #savedResponses {
-    max-width: 500px;
+    min-width: 300px;
     background: white;
     margin: 0;
     padding: 20px;
@@ -157,6 +157,7 @@ button:hover {
     gap: 20px;
     justify-content: flex-start;
     padding: 0;
+    flex-direction: row;
 }
 
 .response-box {

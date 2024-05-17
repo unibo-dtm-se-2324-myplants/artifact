@@ -2,6 +2,60 @@ document.addEventListener("DOMContentLoaded", function () {
     const imageInput = document.getElementById("imageFile");
     const dragArea = document.querySelector(".drag-area");
     const form = document.getElementById("plantForm");
+    const clearStorageButton = document.getElementById("clearStorage");
+
+    // Funzione per caricare risposte salvate
+    function loadSavedResponses() {
+        const responseList = document.getElementById('responseList');
+        responseList.innerHTML = ''; // Pulisci la lista delle risposte
+        let savedResponses = [];
+        try {
+            savedResponses = JSON.parse(localStorage.getItem('responses')) || [];
+        } catch (e) {
+            console.error("Error parsing JSON from localStorage:", e);
+        }
+        savedResponses.reverse().forEach(data => addResponse(data, false)); // Inverti l'array delle risposte
+    }
+    // Funzione per aggiungere una risposta al DOM e opzionalmente salvarla in localStorage
+    function addResponse(data, save = true) {
+        const responseBox = document.createElement('div');
+        responseBox.className = 'response-box';
+
+        const imageEl = document.createElement('img');
+        imageEl.src = data.imageSrc;
+        imageEl.className = 'response-image';
+        imageEl.alt = 'Uploaded plant image';
+
+        responseBox.appendChild(imageEl);
+        responseBox.innerHTML += `
+            <div class="response-section">${data.plantName}</div>
+            <div class="response-section">${data.watering}</div>
+            <div class="response-section">${data.description}</div>
+        `;
+
+        const responseList = document.getElementById('responseList');
+        responseList.insertBefore(responseBox, responseList.firstChild);
+
+        if (save) {
+            let savedResponses = [];
+            try {
+                savedResponses = JSON.parse(localStorage.getItem('responses')) || [];
+            } catch (e) {
+                console.error("Error parsing JSON from localStorage:", e);
+            }
+            savedResponses.unshift(data);
+                  localStorage.setItem('responses', JSON.stringify(savedResponses));
+        }
+    }
+
+    // Carica le risposte salvate al caricamento della pagina
+    loadSavedResponses();
+    // Gestore per svuotare la memoria locale
+    clearStorageButton.addEventListener("click", function () {
+        localStorage.clear();
+        const responseList = document.getElementById('responseList');
+        responseList.innerHTML = ''; // Pulisci la lista delle risposte dal DOM
+    });
 
     dragArea.addEventListener("click", () => imageInput.click());
 
@@ -27,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (imageInput.files.length > 0) {
             dragArea.querySelector(".drag-text").textContent = `.`;
         }
-
     });
 
     document.getElementById('imageFile').addEventListener('change', function (event) {
@@ -46,8 +99,18 @@ document.addEventListener("DOMContentLoaded", function () {
         event.preventDefault();
         const formData = new FormData();
         const location = document.querySelector('input[name="location"]:checked').value;
-        formData.append('location', location);
-        formData.append('image', imageInput.files[0]);
+        const file = imageInput.files[0];
+
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imageBase64 = e.target.result;
+            formData.append('location', location);
+            formData.append('image', file);
 
         document.getElementById('loader').classList.remove('hidden');
         document.getElementById('invia').style.display = "none";
@@ -57,23 +120,18 @@ document.addEventListener("DOMContentLoaded", function () {
             body: formData,
         })
             .then(response => response.json())
-
-
             .then(data => {
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('invia').style.display = "block";
 
                 // Controlla se il contenuto della risposta è 'error404'
                 if (data.message.content === "error404") {
-
                     // Mostra un messaggio di errore se l'immagine non è riconosciuta come una pianta
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'error-message';
                     errorMessage.textContent = "Nessuna pianta individuata, riprova";
                     const responseList = document.getElementById('responseList');
                     responseList.insertBefore(errorMessage, responseList.firstChild);
-
-
                 } else if (data.message && typeof data.message.content === 'string') {
                     const formattedContent = data.message.content.replace(/<br>/g, '');
                     const parts = formattedContent.split(' - ');
@@ -82,32 +140,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     const watering = parts[1] ? parts[1] : '';
                     const description = parts[2] ? parts[2] : '';
 
-                    const responseBox = document.createElement('div');
-                    responseBox.className = 'response-box';
+                    const responseData = {
+                        imageSrc: imageBase64,
+                        plantName: plantName,
+                        watering: watering,
+                        description: description
+                    };
 
-                    const imageEl = document.createElement('img');
-                    imageEl.src = URL.createObjectURL(imageInput.files[0]);
-                    imageEl.className = 'response-image';
-                    imageEl.alt = 'Uploaded plant image';
-
-                    responseBox.appendChild(imageEl);
-                    responseBox.innerHTML += `
-            <div class="response-section">${plantName}</div>
-            <div class="response-section">${watering}</div>
-            <div class="response-section">${description}</div>
-        `;
-
-                    const responseList = document.getElementById('responseList');
-                    responseList.insertBefore(responseBox, responseList.firstChild);
+                    addResponse(responseData);
                 } else {
                     console.error('Invalid response format');
                 }
 
                 // Reset the form
                 form.reset();
-
                 document.getElementById('thumb').src = '';
-                // Reset la drag area
                 const dragText = dragArea.querySelector(".drag-text");
                 dragText.innerHTML = "Trascina qui un'immagine<br>o<br>clicca per selezionarla";
             })
@@ -115,6 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('loader').classList.add('hidden');
                 console.error('Error:', error);
             });
+        }
 
+        reader.readAsDataURL(file);
     });
 });

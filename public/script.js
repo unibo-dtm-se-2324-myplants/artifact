@@ -193,6 +193,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     errorMessage.textContent = "Nessuna pianta individuata, riprova";
                     const responseList = document.getElementById('responseList');
                     responseList.insertBefore(errorMessage, responseList.firstChild);
+
+                     // Rimuove il messaggio di errore dopo 5 secondi
+                     setTimeout(() => {
+                        errorMessage.remove();
+                    }, 5000); // 5000 millisecondi = 5 secondi
+
                 } else if (data.message && typeof data.message.content === 'string') {
                     const formattedContent = data.message.content.replace(/<br>/g, '');
                     const parts = formattedContent.split(' - ');

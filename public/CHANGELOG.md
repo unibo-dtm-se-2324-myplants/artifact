@@ -30,6 +30,11 @@ pwa: now can be installed
 ### feat
 localStorage: responses saved in browser local storage
 
+## [1.1.2] - May 18, 2024
+### feat
+notification: watering for each plant
+
+
 
 
 

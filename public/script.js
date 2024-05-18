@@ -1,8 +1,11 @@
+console.log('Caricamento script.js versione 1.0');
+
 document.addEventListener("DOMContentLoaded", function () {
     const imageInput = document.getElementById("imageFile");
     const dragArea = document.querySelector(".drag-area");
     const form = document.getElementById("plantForm");
     const clearStorageButton = document.getElementById("clearStorage");
+    const enableNotificationsButton = document.getElementById("enableNotifications");
 
     // Funzione per caricare risposte salvate
     function loadSavedResponses() {
@@ -10,12 +13,16 @@ document.addEventListener("DOMContentLoaded", function () {
         responseList.innerHTML = ''; // Pulisci la lista delle risposte
         let savedResponses = [];
         try {
-            savedResponses = JSON.parse(localStorage.getItem('responses')) || [];
+            const storedResponses = localStorage.getItem('responses');
+            if (storedResponses) {
+                savedResponses = JSON.parse(storedResponses) || [];
+            }
         } catch (e) {
             console.error("Error parsing JSON from localStorage:", e);
         }
         savedResponses.reverse().forEach(data => addResponse(data, false)); // Inverti l'array delle risposte
     }
+    
     // Funzione per aggiungere una risposta al DOM e opzionalmente salvarla in localStorage
     function addResponse(data, save = true) {
         const responseBox = document.createElement('div');
@@ -39,14 +46,68 @@ document.addEventListener("DOMContentLoaded", function () {
         if (save) {
             let savedResponses = [];
             try {
-                savedResponses = JSON.parse(localStorage.getItem('responses')) || [];
+                const storedResponses = localStorage.getItem('responses');
+                if (storedResponses) {
+                    savedResponses = JSON.parse(storedResponses) || [];
+                }
             } catch (e) {
                 console.error("Error parsing JSON from localStorage:", e);
             }
             savedResponses.unshift(data);
                   localStorage.setItem('responses', JSON.stringify(savedResponses));
         }
+
+        // Estrarre il numero di giorni dall'elemento di annaffiatura e convertire in secondi per i test
+        const wateringMatch = data.watering.match(/(\d+)/);
+        if (wateringMatch) {
+            const wateringDays = parseInt(wateringMatch[0], 10);
+            const wateringSeconds = wateringDays * 1; // Convertire giorni in secondi per i test
+            scheduleWateringNotification(data.plantName, wateringSeconds);
+        }
     }
+
+    // Funzione per pianificare notifiche
+    function scheduleWateringNotification(plantName, seconds) {
+        const millisecondsPerSecond = 1000;
+        const wateringTime = seconds * millisecondsPerSecond;
+
+        setTimeout(() => {
+            notifyUser(plantName);
+
+            setInterval(() => {
+                notifyUser(plantName);
+            }, wateringTime);
+        }, wateringTime);
+    }
+
+    // Funzione per inviare notifiche
+    function notifyUser(plantName) {
+        if (Notification.permission === "granted") {
+            new Notification(`È ora di annaffiare la tua pianta: ${plantName}`);
+        } else {
+            requestNotificationPermission();
+        }
+    }
+
+    // Funzione per richiedere il permesso di notifica
+    function requestNotificationPermission() {
+        if (Notification.permission === "default" || Notification.permission === "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    console.log("Permesso per le notifiche concesso");
+                } else {
+                    console.log("Permesso per le notifiche negato");
+                }
+            });
+        } else {
+            console.log("Permesso per le notifiche già concesso");
+        }
+    }
+
+    // Richiedere il permesso per le notifiche al caricamento della pagina
+    enableNotificationsButton.addEventListener("click", function () {
+        requestNotificationPermission();
+    });
 
     // Carica le risposte salvate al caricamento della pagina
     loadSavedResponses();

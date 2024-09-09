@@ -36,6 +36,10 @@ notification: watering for each plant
 - ### fix
 noplant-detected: error message removed after 5 seconds
 
+## [1.1.3] - Sep 09, 2024
+- ### fix
+json api response: the response is more stable using a json format
+
 
 
 

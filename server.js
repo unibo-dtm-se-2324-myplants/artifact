@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-
 const app = express();
 const port = 3000;
 
@@ -40,17 +39,46 @@ app.post('/submit', upload.single('image'), async (req, res) => {
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: "dammi il nome scientifico della pianta che vedi, rispetta quest'ordine di formattazione nella risposta ( <b>Nome pianta:</b> x <br> - <br> <b>Annaffiala ogni:</b> x giorni <br> - <br>  <b>Descrizione:</b> x). Se l'immagine non è una pianta rispondi solo con: error404. Rispetta la formattazione che ti ho chiesto e non andare mai a capo, sostituisci le 'x' e restituiscimi il numero di giorni con un solo valore intero sapendo che la pianta è posizionata " + location },
-                        { type: "image_url", image_url: { url: dataUri } }
-                    ]
-                }
-            ]
+                        { type: "text", text: `Analizza l'immagine della pianta e fornisci le seguenti informazioni in formato JSON:
+                            {
+                                "commonName": "Assegna un nome casule a tuo piacimento tipo: Mariolina, Giovanna, Ippolita. Ma non questi",
+                                "scientificName": "Nome scientifico della pianta",
+                                "wateringFrequency": "Numero di giorni tra le annaffiature",
+                                "description": "Breve descrizione della pianta",
+                                "careInstructions": "Istruzioni per la cura della pianta",
+                                "isPlant": true/false
+                            }
+                            Se l'immagine non è di una pianta, imposta isPlant su false e lascia vuoti gli altri campi. La pianta è posizionata ${location}. Fornisci solo il JSON senza altri commenti o formattazione.` },
+                            { type: "image_url", image_url: { url: dataUri } }
+                        ]
+                    }
+                ],
+                max_tokens: 4000
         });
 
         console.log('Response from OpenAI:', response);
         console.log('Message from OpenAI:', response.choices[0].message);
 
-        res.json({ message: response.choices[0].message });
+          
+        let parsedResponse;
+        try {
+            const cleanedContent = response.choices[0].message.content.replace(/```json\s*|\s*```/g, '').trim();
+            parsedResponse = JSON.parse(cleanedContent);
+
+            // Assicuriamoci che wateringFrequency sia un numero
+            if (parsedResponse.isPlant && parsedResponse.wateringFrequency) {
+                parsedResponse.wateringFrequency = parseInt(parsedResponse.wateringFrequency, 10);
+                if (isNaN(parsedResponse.wateringFrequency)) {
+                    parsedResponse.wateringFrequency = 7; // Valore di default se non è un numero valido
+                }
+            }
+        } catch (error) {
+            console.error('Error parsing JSON response:', error);
+            console.error('Raw response:', response.choices[0].message.content);
+            return res.status(500).json({ error: 'Invalid response format from AI', rawResponse: response.choices[0].message.content });
+        }
+
+        res.json(parsedResponse);
     } catch (error) {
         console.error('Error fetching response from OpenAI:', error);
         res.status(500).json({ error: 'Error in fetching response', details: error.message });

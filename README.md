@@ -1,30 +1,29 @@
-# Step by Step
+# Road map:
 
-## Demo e Organization
-
-1. I created a demo of the project I had in mind
-2. After the approval I created the organization
-3. I forked my demos
-4. I inizialized the Artifact and Report repositorys on the organizzation
-
-## Working on the demo
-
-1. Add .gitignore (node, windows, git and .env [i will put my openai key in an .env file so it's not pushed on puiblic org repo]) and .gitarrtibutes
-2. Install all the dipendence: npm install express openai dotenv multer and node.js (npm init -y)
-3. Import demo on Artifact repo
-
-## Road map:
-
-- Solve visualization problems with OpenAI answer
+- ~Solve visualization problems with OpenAI answer~
 - ~Handle non-plant image uploads~ (to be improved)
-- Implement Progressive Web App (PWA) features
-- Storage
+- ~Implement Progressive Web App (PWA) features~
+- ~Storage~
 - Implement notification functionality
 - Enable picture uploads from phone cameras
 - Better responsive UI
-- 
-- caching for same requests
+- Caching ()
 
-Problems encouterd:
+## Conventional Commits
 
--
+Abbreviations used in Conventional Commits:
+
+| Abbreviation | Meaning |
+|--------------|---------|
+| `feat`       | Introduces a new feature |
+| `fix`        | Fixes a bug |
+| `docs`       | Changes to documentation |
+| `style`      | Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.) |
+| `refactor`   | Code changes that neither fix a bug nor add a feature |
+| `perf`       | Performance improvements |
+| `test`       | Adding or correcting tests |
+| `build`      | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm) |
+| `ci`         | Changes to CI configuration files and scripts (examples: Travis, Circle, BrowserStack, SauceLabs) |
+| `chore`      | Other changes that do not modify src or test files |
+| `revert`     | Reverts a previous commit |
+

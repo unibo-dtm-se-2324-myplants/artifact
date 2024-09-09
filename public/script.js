@@ -1,5 +1,3 @@
-console.log('Caricamento script.js versione 1.0');
-
 document.addEventListener("DOMContentLoaded", function () {
     const imageInput = document.getElementById("imageFile");
     const dragArea = document.querySelector(".drag-area");
@@ -89,9 +87,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+
+// Giorni
+
     function scheduleNotification(plantName, days, imageSrc) {
         const millisecondsPerDay = 24 * 60 * 60 * 1000;
         const wateringTime = days * millisecondsPerDay;
+
+
+
+// Secondi
+/* 
+        function scheduleNotification(plantName, days, imageSrc) {
+            const millisecondsPerSecond = 1000; // Un secondo = 1000 millisecondi
+            const wateringTime = days * millisecondsPerSecond; // Ora i "days" sono considerati secondi
+ */
+
+
 
         const notifications = JSON.parse(localStorage.getItem('plantNotifications') || '[]');
         notifications.push({

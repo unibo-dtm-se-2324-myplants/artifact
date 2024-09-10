@@ -77,7 +77,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Contact
 For any inquiries or contributions, feel free to reach out:
 
-Email: your-email@example.com
-GitHub: GitHub Profile
+Email: [dcopia@studenti.unibo.it](mailto:dcopia@studenti.unibo.it)
+
+GitHub: [GitHub Profile](https://github.com/dcopia)
 
 Thank you for using PlantAI! 🌱

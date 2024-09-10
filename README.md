@@ -77,7 +77,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Contact
 For any inquiries or contributions, feel free to reach out:
 
-Email: [dcopia@studenti.unibo.it](mailto:dcopia@studenti.unibo.it)
+Email: [domenico.copia@studio.unibo.it](mailto:domenico.copia@studio.unibo.it)
 
 GitHub: [GitHub Profile](https://github.com/dcopia)
 

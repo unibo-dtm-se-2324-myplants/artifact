@@ -79,6 +79,6 @@ For any inquiries or contributions, feel free to reach out:
 
 Email: [domenico.copia@studio.unibo.it](mailto:domenico.copia@studio.unibo.it)
 
-GitHub: [GitHub Profile](https://github.com/dcopia)
+GitHub: [dcopia](https://github.com/dcopia)
 
 Thank you for using PlantAI! 🌱

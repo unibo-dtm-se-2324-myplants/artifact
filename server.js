@@ -8,30 +8,34 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
-// Setup multer per il memory storage e per gestire gli uploads
+// Configurazione di multer per la gestione dei file di immagine
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.use(express.static('public'));
+app.use(express.static('public')); // Serve la cartella pubblica per file statici (Presentation Layer)
 app.use(express.json());
 
+// Inizializzazione dell'API OpenAI (potrebbe essere astratta in un servizio dedicato)
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
+// Route principale per la gestione dell'invio delle immagini (Business Logic Layer)
 app.post('/submit', upload.single('image'), async (req, res) => {
     console.log('Received request with location:', req.body.location);
 
+    // Controllo dell'immagine caricata (potrebbe essere astratto come middleware o validatore separato)
     if (!req.file) {
         return res.status(400).json({ error: 'Image file is required' });
     }
 
-    // Convertire immagine in base64
+    // Conversione dell'immagine in base64 (potrebbe essere una funzione di utilità separata)
     const imageBase64 = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
     const dataUri = `data:${mimeType};base64,${imageBase64}`;
 
     try {
+        // Esecuzione della richiesta all'API di OpenAI (potrebbe essere diviso in un modulo di servizio per chiamate API)
         const { location } = req.body;
         const response = await openai.chat.completions.create({
             model: 'gpt-4o',
@@ -59,13 +63,13 @@ app.post('/submit', upload.single('image'), async (req, res) => {
         console.log('Response from OpenAI:', response);
         console.log('Message from OpenAI:', response.choices[0].message);
 
-          
+        // Parsing della risposta JSON e validazione (questo blocco può diventare una funzione di utilità)          
         let parsedResponse;
         try {
             const cleanedContent = response.choices[0].message.content.replace(/```json\s*|\s*```/g, '').trim();
             parsedResponse = JSON.parse(cleanedContent);
 
-            // Assicuriamoci che wateringFrequency sia un numero
+            // Controllo e validazione del campo wateringFrequency (funzione separata per il controllo del tipo)
             if (parsedResponse.isPlant && parsedResponse.wateringFrequency) {
                 parsedResponse.wateringFrequency = parseInt(parsedResponse.wateringFrequency, 10);
                 if (isNaN(parsedResponse.wateringFrequency)) {
@@ -85,6 +89,7 @@ app.post('/submit', upload.single('image'), async (req, res) => {
     }
 });
 
+// Avvio del server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });

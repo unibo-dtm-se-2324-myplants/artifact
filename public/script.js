@@ -1,31 +1,35 @@
+// Evento principale: inizializzazione al caricamento del DOM (Document Object Model) prmettedi interagire e modificare il contenuto, la struttura e lo stile di una pagina web
 document.addEventListener("DOMContentLoaded", function () {
+    // Riferimenti agli elementi HTML principali
     const imageInput = document.getElementById("imageFile");
     const dragArea = document.querySelector(".drag-area");
     const form = document.getElementById("plantForm");
     const clearStorageButton = document.getElementById("clearStorage");
     const enableNotificationsButton = document.getElementById("enableNotifications");
 
-    // Funzione per caricare risposte salvate
+    // Funzione per caricare le risposte salvate in localStorage e mostrarle nel DOM
     function loadSavedResponses() {
         const responseList = document.getElementById('responseList');
-        responseList.innerHTML = ''; // Pulisci la lista delle risposte
+        responseList.innerHTML = ''; // Pulisce la lista delle risposte
         let savedResponses = [];
         try {
             const storedResponses = localStorage.getItem('responses');
             if (storedResponses) {
-                savedResponses = JSON.parse(storedResponses) || [];
+                savedResponses = JSON.parse(storedResponses) || []; // Recupera e analizza i dati da localStorage
             }
         } catch (e) {
             console.error("Error parsing JSON from localStorage:", e);
         }
-        savedResponses.reverse().forEach(data => addResponse(data, false)); // Inverti l'array delle risposte
+        // Inverte l'ordine delle risposte e le visualizza
+        savedResponses.reverse().forEach(data => addResponse(data, false));
     }
     
-    // Funzione per aggiungere una risposta al DOM e opzionalmente salvarla in localStorage
+    // Aggiunge una risposta alla pagina e la salva opzionalmente in localStorage
     function addResponse(data, save = true) {
         const responseBox = document.createElement('div');
         responseBox.className = 'response-box';
 
+        // Aggiunge l'immagine della pianta alla risposta
         const imageEl = document.createElement('img');
         imageEl.src = data.imageSrc;
         imageEl.className = 'response-image';
@@ -33,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         responseBox.appendChild(imageEl);
         
+        // Verifica se l'immagine contiene una pianta e aggiunge informazioni sulla pianta
         if (data.isPlant) {
             responseBox.innerHTML += `
                 <div class="response-section"><b>Nome:</b> ${data.commonName}</div>
@@ -42,14 +47,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="response-section"><b>Istruzioni di cura:</b> ${data.careInstructions}</div>
             `;
         } else {
+            // Messaggio se l'immagine non contiene una pianta
             responseBox.innerHTML += `
                 <div class="response-section">Nessuna pianta individuata nell'immagine.</div>
             `;
         }
 
         const responseList = document.getElementById('responseList');
-        responseList.insertBefore(responseBox, responseList.firstChild);
+        responseList.insertBefore(responseBox, responseList.firstChild); // Inserisce la nuova risposta in cima
 
+        // Salvataggio opzionale della risposta in localStorage
         if (save) {
             let savedResponses = [];
             try {
@@ -60,21 +67,24 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (e) {
                 console.error("Error parsing JSON from localStorage:", e);
             }
-            savedResponses.unshift(data);
-                  localStorage.setItem('responses', JSON.stringify(savedResponses));
+            savedResponses.unshift(data); // Aggiunge la nuova risposta all'inizio dell'array
+                  localStorage.setItem('responses', JSON.stringify(savedResponses)); // Aggiorna localStorage
         }
 
+        // Pianifica una notifica per l'irrigazione se l'immagine contiene una pianta
         if (data.isPlant) {
             scheduleWateringNotification(data.commonName || data.scientificName, parseInt(data.wateringFrequency, 10), data.imageSrc);
         }
     }
 
+    // Funzione per pianificare le notifiche desktop per ricordare l'irrigazione
     function scheduleWateringNotification(plantName, days, imageSrc) {
         if (!('Notification' in window)) {
             console.log('Questo browser non supporta le notifiche desktop');
             return;
         }
 
+        // Richiede il permesso per le notifiche se non è già stato concesso
         if (Notification.permission !== 'granted') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
@@ -87,25 +97,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Funzione per calcolare e pianificare il tempo delle notifiche
 
-// Giorni
-
+    // Giorni
     function scheduleNotification(plantName, days, imageSrc) {
-        const millisecondsPerDay = 24 * 60 * 60 * 1000;
+        const millisecondsPerDay = 24 * 60 * 60 * 1000; // Converte i giorni in millisecondi
         const wateringTime = days * millisecondsPerDay;
 
-
-
-// Secondi
+    // Secondi (per testare le notifiche)
 /* 
         function scheduleNotification(plantName, days, imageSrc) {
             const millisecondsPerSecond = 1000; // Un secondo = 1000 millisecondi
             const wateringTime = days * millisecondsPerSecond; // Ora i "days" sono considerati secondi
  */
 
-
-
-        const notifications = JSON.parse(localStorage.getItem('plantNotifications') || '[]');
+             // Memorizza le notifiche programmate in localStorage
+            const notifications = JSON.parse(localStorage.getItem('plantNotifications') || '[]');
         notifications.push({
             plantName: plantName,
             nextNotification: Date.now() + wateringTime,
@@ -113,13 +120,14 @@ document.addEventListener("DOMContentLoaded", function () {
             imageSrc: imageSrc
         });
         localStorage.setItem('plantNotifications', JSON.stringify(notifications));
-
+        
+        // Pianifica l'esecuzione della notifica
         setTimeout(() => {
             notifyUser(plantName, imageSrc);
             scheduleNextNotification(plantName, wateringTime);
         }, wateringTime);
     }
-
+    // Funzione per pianificare le notifiche successive
     function scheduleNextNotification(plantName, interval) {
         const notifications = JSON.parse(localStorage.getItem('plantNotifications') || '[]');
         const plantIndex = notifications.findIndex(n => n.plantName === plantName);
@@ -134,7 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }, interval);
         }
     }
-
+    
+    // Funzione per mostrare la notifica all'utente
     function notifyUser(plantName, imageSrc) {
         if (Notification.permission === "granted") {
             new Notification(`È ora di annaffiare la tua pianta: ${plantName}`, {
@@ -143,7 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     }
-
+    
+    // Verifica e attiva le notifiche pendenti se è il momento
     function checkNotifications() {
         const notifications = JSON.parse(localStorage.getItem('plantNotifications') || '[]');
         const now = Date.now();
@@ -161,10 +171,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
+    
+    // Inizializza caricamento risposte e controllo delle notifiche
     loadSavedResponses();
     checkNotifications();
-
+   
+    // Gestione del pulsante per svuotare la memoria
     clearStorageButton.addEventListener("click", function () {
         if (confirm("Sei sicuro di voler svuotare la memoria?")) {
             localStorage.clear();
@@ -173,7 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Tutte le risposte sono state cancellate.");
         }
     });
-
+   
+    // Richiede il permesso di attivare le notifiche
     enableNotificationsButton.addEventListener("click", function () {
         requestNotificationPermission();
     });
@@ -192,6 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Gestione drag-and-drop e anteprima dell'immagine
     dragArea.addEventListener("click", () => imageInput.click());
 
     dragArea.addEventListener("dragover", (event) => {
@@ -212,7 +226,8 @@ document.addEventListener("DOMContentLoaded", function () {
         dragArea.classList.remove("active");
         displayThumbnail(event.dataTransfer.files[0]);
     });
-
+   
+    // Anteprima dell'immagine selezionata
     imageInput.addEventListener("change", (event) => {
         if (imageInput.files.length > 0) {
             dragArea.querySelector(".drag-text").textContent = ".";
@@ -229,7 +244,8 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         reader.readAsDataURL(file);
     }
-
+   
+    // Invio del form con l'immagine e la posizione
     form.addEventListener("submit", function (event) {
         event.preventDefault();
         const formData = new FormData();
@@ -249,8 +265,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById('loader').classList.remove('hidden');
         document.getElementById('invia').style.display = "none";
-
-        fetch('/submit', {
+           
+        // Invio dell'immagine al server
+            fetch('/submit', {
             method: 'POST',
             body: formData,
         })
@@ -258,7 +275,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('invia').style.display = "block";
-
+               
+                // Gestione della risposta: mostra errore o aggiunge i dati della pianta
                 if (!data.isPlant) {
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'error-message';
